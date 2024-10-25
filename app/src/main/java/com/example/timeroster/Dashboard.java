@@ -1,87 +1,117 @@
 package com.example.timeroster;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
-public class Dashboard extends AppCompatActivity {
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 
-    private boolean isDarkTheme;
-    private SharedPreferences sharedPreferences;
-    private TextView userEmailTextView;
+public class Dashboard extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    DrawerLayout drawerLayout;
+    BottomNavigationView bottomNavigationView;
+    FragmentManager fragmentManager;
+    Toolbar toolbar;
+    FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_dashboard);
 
-        // Manejo de insets para ajustar el padding
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+        fab = findViewById(R.id.fab);
+        toolbar = findViewById(R.id.toolbar);
+
+        // Asegúrate de que Toolbar sea el correcto
+        setSupportActionBar(toolbar);
+
+        drawerLayout = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.nav_open, R.string.nav_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = findViewById(R.id.navigation_drawer);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setBackground(null);
+
+        // Reemplazar el método obsoleto setOnNavigationItemSelectedListener
+        bottomNavigationView.setOnItemSelectedListener(new BottomNavigationView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                int itemId = menuItem.getItemId();
+                if (itemId == R.id.button_home) {
+                    openFragment(new HomeFragment());
+                    return true;
+                } else if (itemId == R.id.button_short) {
+                    openFragment(new AgregarFragment());
+                    return true;
+                } else if (itemId == R.id.button_suscription) {
+                    openFragment(new AgregarFragment());
+                    return true;
+                } else if (itemId == R.id.button_never) {
+                    openFragment(new AgregarFragment());
+                    return true;
+                }
+                return false;
+            }
         });
 
-        // Inicializar preferencias compartidas
-        sharedPreferences = getSharedPreferences("app_preferences", Context.MODE_PRIVATE);
-        isDarkTheme = sharedPreferences.getBoolean("darkTheme", false);
+        fragmentManager = getSupportFragmentManager();
+        openFragment(new HomeFragment());
 
-        // Configurar la vista
-        userEmailTextView = findViewById(R.id.userEmail);
-        String userEmail = sharedPreferences.getString("email", null);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(Dashboard.this, "FAB Clicked!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
-        // Mostrar el correo del usuario logueado o un mensaje por defecto
-        if (userEmail != null) {
-            userEmailTextView.setText(userEmail);
-        } else {
-            userEmailTextView.setText("Time Roster");
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        int itemId = menuItem.getItemId();
+        if (itemId == R.id.navHome) {
+            openFragment(new HomeFragment());
+        } else if (itemId == R.id.navAgregar) {
+            openFragment(new AgregarFragment());
+        } else if (itemId == R.id.navEmpleados) {
+            openFragment(new EmpleadosFragment());
+        } else if (itemId == R.id.navAsistencia) {
+            openFragment(new AsistenciaFragment());
+        } else if (itemId == R.id.navAnalitica) {
+            openFragment(new AnaliticaFragment());
         }
-
-        // Configurar botones de navegación
-        Button logoutButton = findViewById(R.id.logoutButton);
-        logoutButton.setOnClickListener(view -> logout());
-        findViewById(R.id.navHome).setOnClickListener(view -> navigateTo(HomeActivity.class));
-        findViewById(R.id.navAddEmployee).setOnClickListener(view -> navigateTo(AddEmployeeActivity.class));
-        findViewById(R.id.navEmployees).setOnClickListener(view -> navigateTo(EmployeesActivity.class));
-        findViewById(R.id.navAttendance).setOnClickListener(view -> navigateTo(AttendanceActivity.class));
-        findViewById(R.id.navAnalytics).setOnClickListener(view -> navigateTo(AnalyticsActivity.class));
-
-        // Botón para cambiar el tema
-        findViewById(R.id.themeSwitcher).setOnClickListener(view -> toggleTheme());
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 
-    // Método para cerrar sesión
-    private void logout() {
-        // Limpiar las preferencias almacenadas
-        sharedPreferences.edit().clear().apply();
-
-        // Redirigir al Login
-        Intent intent = new Intent(Dashboard.this, Login.class);
-        startActivity(intent);
-        finish(); // Cerrar esta actividad
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
-    // Cambiar entre tema claro y oscuro
-    private void toggleTheme() {
-        isDarkTheme = !isDarkTheme;
-        sharedPreferences.edit().putBoolean("darkTheme", isDarkTheme).apply();
-        // Aquí puedes agregar la lógica para aplicar el tema
-    }
-
-    // Método para la navegación entre actividades
-    private void navigateTo(Class<?> targetActivity) {
-        Intent intent = new Intent(Dashboard.this, targetActivity);
-        startActivity(intent);
+    private void openFragment(Fragment fragment) {
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.commit();
     }
 }

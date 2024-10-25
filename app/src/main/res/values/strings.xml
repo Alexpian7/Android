@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">TimeRoster</string>
+    <string name="app_name">Kronos 2.0</string>
+    <string name="nav_open">Abrir</string>
+    <string name="nav_close">Cerrar</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

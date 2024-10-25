@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn = "navigation_view">
+
+
+    <group
+        android:checkableBehavior="single">
+    <item
+        android:id="@+id/navHome"
+        android:title="Inicio"
+        android:icon="@drawable/home"/>
+    <item
+        android:id="@+id/navAgregar"
+        android:title="Agregar Empleados"
+        android:icon="@drawable/agregar"/>
+    <item
+        android:id="@+id/navEmpleados"
+        android:title="Empleados"
+        android:icon="@drawable/empleados"/>
+    <item
+        android:id="@+id/navAsistencia"
+        android:title="Asistencia"
+        android:icon="@drawable/asistencia"/>
+    <item
+        android:id="@+id/navAnalitica"
+        android:title="Analitica"
+        android:icon="@drawable/analitica"/>
+    <item
+        android:title=""/>
+
+        <item
+        android:id="@+id/cerrar"
+        android:title="Cerrar Sesion"
+        android:icon="@drawable/logout"/>
+
+</group>
+
+
+
+
+</menu>
